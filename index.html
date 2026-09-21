@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>21 Academy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="description" content="Blackjack with a basic strategy coach that grades every move.">
+<meta name="theme-color" content="#0d1512">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="21 Academy">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="balance">
+      <span class="chip-dot"></span>
+      <span id="bankroll">0</span>
+      <span class="net-flash" id="netFlash"></span>
+    </div>
+    <div class="shoe">
+      <div class="shoe-track"><div class="shoe-fill" id="shoeFill"></div></div>
+      <span class="count-badge" id="countBadge" hidden></span>
+    </div>
+    <nav class="top-actions">
+      <button id="btnChart" class="icon-btn" aria-label="Strategy chart">Chart</button>
+      <button id="btnStats" class="icon-btn" aria-label="Statistics">Stats</button>
+      <button id="btnSettings" class="icon-btn gear" aria-label="Settings">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5Zm7.4-2.2.1-1.3-.1-1.3 2-1.5-2-3.4-2.3.9a7.6 7.6 0 0 0-2.2-1.3L14.5 3h-5l-.4 2.4a7.6 7.6 0 0 0-2.2 1.3l-2.3-.9-2 3.4 2 1.5-.1 1.3.1 1.3-2 1.5 2 3.4 2.3-.9a7.6 7.6 0 0 0 2.2 1.3l.4 2.4h5l.4-2.4a7.6 7.6 0 0 0 2.2-1.3l2.3.9 2-3.4Z"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  <main class="table">
+    <section class="dealer-area">
+      <div class="seat-label">Dealer</div>
+      <div class="hand dealer-hand" id="dealerHand"></div>
+      <div class="dealer-meta"><span class="total-badge" id="dealerTotal" hidden></span></div>
+    </section>
+
+    <div class="table-msg" id="tableMsg"></div>
+    <div class="grade" id="grade"></div>
+
+    <section class="ai-row" id="aiRow" hidden></section>
+
+    <section class="player-area">
+      <div class="player-hands" id="playerHands"></div>
+    </section>
+  </main>
+
+  <div class="coach idle" id="coach"></div>
+
+  <footer class="controls">
+
+    <div class="action-bar" id="actionBar" hidden>
+      <button class="act-btn" data-action="split">Split</button>
+      <button class="act-btn" data-action="double">Double</button>
+      <button class="act-btn primary" data-action="hit">Hit</button>
+      <button class="act-btn primary" data-action="stand">Stand</button>
+    </div>
+
+    <div class="insurance-bar" id="insuranceBar" hidden>
+      <p id="insText"></p>
+      <div class="ins-buttons">
+        <button class="act-btn" data-ins="yes" id="insYes">Insure</button>
+        <button class="act-btn primary" data-ins="no">No thanks</button>
+      </div>
+    </div>
+
+    <div class="bet-bar" id="betBar">
+      <div class="bet-line">
+        <span class="bet-label">Bet</span>
+        <span class="bet-amount" id="betAmount">0</span>
+        <button class="mini-btn" id="clearBtn">Clear</button>
+        <button class="mini-btn" id="rebetBtn">Max</button>
+      </div>
+      <div class="chip-row" id="chipRow">
+        <button class="chip c25" data-chip="25"><span>25</span></button>
+        <button class="chip c100" data-chip="100"><span>100</span></button>
+        <button class="chip c500" data-chip="500"><span>500</span></button>
+        <button class="chip c1000" data-chip="1000"><span>1K</span></button>
+      </div>
+      <p class="broke-note" id="brokeNote" hidden>Out of chips. Open Settings to add 5,000.</p>
+      <button class="deal-btn" id="dealBtn">Deal</button>
+    </div>
+
+  </footer>
+</div>
+
+<div id="modalRoot"></div>
+<script type="module" src="./js/app.js"></script>
+</body>
+</html>
