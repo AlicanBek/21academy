@@ -378,6 +378,8 @@ export class Game {
 
   settle() {
     this.dealer.holeDown = false;
+    // Held so the UI can show the old balance until the chips land.
+    this.preSettleBankroll = this.stats.bankroll;
     const dealer = handValue(this.dealer.cards);
     const dealerBJ = isBlackjack(this.dealer.cards);
     const dealerBust = dealer.total > 21;
@@ -457,6 +459,7 @@ export class Game {
 
   nextRound() {
     this.phase = 'bet';
+    this.preSettleBankroll = null;
     this.dealer = { cards: [], holeDown: true };
     for (const seat of this.seats) seat.hands = [];
     this.lastGrade = null;

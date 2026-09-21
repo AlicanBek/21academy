@@ -19,11 +19,6 @@
 <div id="app">
 
   <header class="topbar">
-    <div class="balance">
-      <span class="chip-dot"></span>
-      <span id="bankroll">0</span>
-      <span class="net-flash" id="netFlash"></span>
-    </div>
     <div class="shoe">
       <div class="shoe-track"><div class="shoe-fill" id="shoeFill"></div></div>
       <span class="count-badge" id="countBadge" hidden></span>
@@ -44,18 +39,7 @@
       <div class="dealer-meta"><span class="total-badge" id="dealerTotal" hidden></span></div>
     </section>
 
-    <svg class="felt-art ins-arc" viewBox="0 0 340 48" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
-      <defs>
-        <path id="insArcLine" d="M 26 40 Q 170 4 314 40"/>
-        <path id="insArcText" d="M 26 58 Q 170 22 314 58"/>
-      </defs>
-      <use href="#insArcLine" class="arc-line outer"/>
-      <text class="arc-text small">
-        <textPath href="#insArcText" startOffset="50%" text-anchor="middle">INSURANCE PAYS 2 TO 1</textPath>
-      </text>
-    </svg>
-
-    <svg class="felt-art main" viewBox="0 0 340 152" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+    <svg class="felt-art" viewBox="0 0 340 168" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
       <defs>
         <path id="feltArcLine" d="M 12 96 Q 170 10 328 96"/>
         <path id="feltArcText" d="M 12 124 Q 170 38 328 124"/>
@@ -66,10 +50,12 @@
         <textPath href="#feltArcText" startOffset="50%" text-anchor="middle">BLACKJACK PAYS 3 TO 2</textPath>
       </text>
       <text class="felt-line" x="170" y="142" text-anchor="middle">DEALER MUST HIT SOFT 17</text>
+      <text class="felt-line dim" x="170" y="160" text-anchor="middle">INSURANCE PAYS 2 TO 1</text>
     </svg>
 
     <div class="table-msg" id="tableMsg"></div>
     <div class="grade" id="grade"></div>
+    <div class="round-banner" id="roundBanner"></div>
 
     <section class="ai-row" id="aiRow" hidden></section>
 
@@ -82,38 +68,55 @@
 
   <footer class="controls">
 
-    <div class="action-bar" id="actionBar" hidden>
-      <button class="act-btn" data-action="split">Split</button>
-      <button class="act-btn" data-action="double">Double</button>
-      <button class="act-btn primary" data-action="hit">Hit</button>
-      <button class="act-btn primary" data-action="stand">Stand</button>
-    </div>
-
-    <div class="insurance-bar" id="insuranceBar" hidden>
-      <p id="insText"></p>
-      <div class="ins-buttons">
-        <button class="act-btn" data-ins="yes" id="insYes">Insure</button>
-        <button class="act-btn primary" data-ins="no">No thanks</button>
+    <div class="money-row">
+      <div class="balance">
+        <span class="chip-dot"></span>
+        <span id="bankroll">0</span>
+        <span class="net-flash" id="netFlash"></span>
       </div>
-    </div>
-
-    <div class="bet-bar" id="betBar">
-      <div class="bet-line">
+      <div class="bet-readout">
         <span class="bet-label">Bet</span>
         <span class="bet-amount" id="betAmount">0</span>
-        <button class="mini-btn" id="clearBtn">Clear</button>
-        <button class="mini-btn" id="rebetBtn">Max</button>
       </div>
-      <div class="chip-row" id="chipRow">
-        <button class="chip c25" data-chip="25"><span>25</span></button>
-        <button class="chip c100" data-chip="100"><span>100</span></button>
-        <button class="chip c500" data-chip="500"><span>500</span></button>
-        <button class="chip c1000" data-chip="1000"><span>1000</span></button>
-      </div>
-      <p class="broke-note" id="brokeNote" hidden>Out of chips. Open Settings to add 5,000.</p>
-      <button class="deal-btn" id="dealBtn">Deal</button>
     </div>
 
+    <div class="phase-pane">
+
+      <div class="action-bar" id="actionBar" hidden>
+        <div class="act-row">
+          <button class="act-btn split" data-action="split">Split</button>
+          <button class="act-btn double" data-action="double">Double</button>
+        </div>
+        <div class="act-row">
+          <button class="act-btn hit" data-action="hit">Hit</button>
+          <button class="act-btn stand" data-action="stand">Stand</button>
+        </div>
+      </div>
+
+      <div class="insurance-bar" id="insuranceBar" hidden>
+        <p id="insText"></p>
+        <div class="act-row">
+          <button class="act-btn insure" data-ins="yes" id="insYes">Insure</button>
+          <button class="act-btn decline" data-ins="no">No thanks</button>
+        </div>
+      </div>
+
+      <div class="bet-bar" id="betBar">
+        <div class="chip-row" id="chipRow">
+          <button class="chip c25" data-chip="25"><span>25</span></button>
+          <button class="chip c100" data-chip="100"><span>100</span></button>
+          <button class="chip c500" data-chip="500"><span>500</span></button>
+          <button class="chip c1000" data-chip="1000"><span>1000</span></button>
+        </div>
+        <div class="bet-actions">
+          <button class="mini-btn" id="clearBtn">Clear</button>
+          <button class="deal-btn" id="dealBtn">Deal</button>
+          <button class="mini-btn" id="rebetBtn">Max</button>
+        </div>
+        <p class="broke-note" id="brokeNote" hidden>Out of chips. Open Settings to add 5,000.</p>
+      </div>
+
+    </div>
   </footer>
 </div>
 

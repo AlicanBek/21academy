@@ -1,6 +1,6 @@
 // Network first so a deploy always wins, cache fallback so the homescreen
 // app still deals a hand with no signal.
-const CACHE = 'twentyone-v1';
+const CACHE = 'twentyone-v2';
 const SHELL = [
   './',
   './index.html',

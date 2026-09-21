@@ -83,6 +83,10 @@ export class UI {
     this.h = handlers;
     this.revealed = false;
     this.gradeTimer = null;
+    this.resultsVisible = true;
+    // A tap that resolves one prompt must not carry through to the button
+    // that lands in the same place a moment later.
+    this.lastDecisionAt = 0;
     this.cacheNodes();
     this.bindStatic();
   }
@@ -91,6 +95,7 @@ export class UI {
     this.n = {
       bankroll: $('#bankroll'),
       netFlash: $('#netFlash'),
+      roundBanner: $('#roundBanner'),
       shoeFill: $('#shoeFill'),
       countBadge: $('#countBadge'),
       dealerHand: $('#dealerHand'),
@@ -127,13 +132,13 @@ export class UI {
 
     this.n.actionBar.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
-      if (!btn || btn.disabled) return;
+      if (!btn || btn.disabled || this.tapTooSoon()) return;
       this.h.act(btn.dataset.action, this.revealed);
     });
 
     this.n.insuranceBar.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-ins]');
-      if (!btn) return;
+      if (!btn || this.tapTooSoon()) return;
       this.h.insurance(btn.dataset.ins, this.revealed);
     });
 
@@ -143,11 +148,20 @@ export class UI {
     });
   }
 
+  tapTooSoon() {
+    const now = Date.now();
+    if (now - this.lastDecisionAt < 450) return true;
+    this.lastDecisionAt = now;
+    return false;
+  }
+
   // ---- main render --------------------------------------------------
 
   render(game) {
     const { stats, settings } = game;
-    this.n.bankroll.textContent = fmt(stats.bankroll);
+    const shownBankroll =
+      !this.resultsVisible && game.preSettleBankroll != null ? game.preSettleBankroll : stats.bankroll;
+    this.n.bankroll.textContent = fmt(shownBankroll);
     this.n.shoeFill.style.width = `${Math.min(100, game.shoe.penetrationPct)}%`;
 
     if (settings.showCount) {
@@ -203,7 +217,7 @@ export class UI {
         }
         syncHand($('.hand', h), hand.cards, -1);
         $('.mini-total', h).textContent = totalText(hand.cards, false);
-        h.className = `mini-hand${hand.result ? ` r-${hand.result}` : ''}`;
+        h.className = `mini-hand${this.resultsVisible && hand.result ? ` r-${hand.result}` : ''}`;
       });
     });
   }
@@ -234,11 +248,12 @@ export class UI {
       betEl.className = `hand-bet chip-badge ${chipClass(hand.bet)}${hand.doubled ? ' doubled' : ''}`;
       betEl.textContent = fmt(hand.bet);
       betEl.title = hand.doubled ? 'Doubled' : '';
+      const shown = this.resultsVisible ? hand.result : null;
       const resultEl = $('.hand-result', node);
-      resultEl.textContent = hand.result ? RESULT_TEXT[hand.result] : '';
+      resultEl.textContent = shown ? RESULT_TEXT[shown] : '';
       node.className = `player-hand${
         game.activeSeat === 0 && game.activeHand === i && hands.length > 1 ? ' active' : ''
-      }${hand.result ? ` r-${hand.result}` : ''}`;
+      }${shown ? ` r-${shown}` : ''}`;
     });
   }
 
@@ -251,17 +266,21 @@ export class UI {
     this.n.actionBar.hidden = !acting;
     this.n.insuranceBar.hidden = !insuring;
 
+    // The bet readout always has something to say: what you are about to
+    // put up, or what is already on the table.
+    const pending = this.h.getBet();
+    const atRisk = game.playerHands.reduce((sum, h) => sum + h.bet, 0);
+    const shownBet = betting ? pending : atRisk || pending;
+    this.n.betAmount.textContent = fmt(shownBet);
+    this.n.betAmount.className = `bet-amount ${chipClass(shownBet)}`;
+
     if (betting) {
-      const bet = this.h.getBet();
-      this.n.betAmount.textContent = fmt(bet);
-      this.n.betAmount.className = `bet-amount ${chipClass(bet)}`;
       const broke = game.stats.bankroll < TABLE_MIN;
-      this.n.dealBtn.disabled = broke || bet < TABLE_MIN || bet > game.stats.bankroll;
+      this.n.dealBtn.disabled = broke || pending < TABLE_MIN || pending > game.stats.bankroll;
       this.n.dealBtn.textContent = game.phase === 'settle' ? 'Next hand' : 'Deal';
-      this.n.rebetBtn.hidden = false;
       [...this.n.chipRow.children].forEach((chip) => {
         const v = Number(chip.dataset.chip);
-        chip.disabled = bet + v > Math.min(TABLE_MAX, game.stats.bankroll);
+        chip.disabled = pending + v > Math.min(TABLE_MAX, game.stats.bankroll);
       });
       $('#brokeNote').hidden = !broke;
     }
@@ -301,8 +320,12 @@ export class UI {
 
     if (!this.revealed) {
       el.className = 'coach';
-      el.innerHTML = `<button id="revealBtn" class="reveal-btn">Hint<span>see what the chart says</span></button>
-        <span class="graded-note">Playing unaided, so this move gets graded</span>`;
+      el.innerHTML = `
+        <div class="advice-main">
+          <button id="revealBtn" class="reveal-btn">Hint<span>see what the chart says</span></button>
+          <span class="graded-note">Playing unaided, so this move gets graded</span>
+        </div>
+        <button id="coachChartLink" class="chart-link">Chart</button>`;
       return;
     }
 
@@ -327,12 +350,14 @@ export class UI {
 
     el.className = 'coach revealed';
     el.innerHTML = `
-      <div class="advice">
-        <span class="advice-action">${advice.label}</span>
-        ${where ? `<span class="advice-where">${where}</span>` : ''}
+      <div class="advice-main">
+        <div class="advice">
+          <span class="advice-action">${advice.label}</span>
+          ${where ? `<span class="advice-where">${where}</span>` : ''}
+        </div>
+        ${advice.chartLabel && advice.chartLabel !== advice.label ? `<div class="advice-note">${advice.chartLabel}</div>` : ''}
       </div>
-      ${advice.chartLabel && advice.chartLabel !== advice.label ? `<div class="advice-note">${advice.chartLabel}</div>` : ''}
-      <button id="coachChartLink" class="chart-link">Full chart</button>`;
+      <button id="coachChartLink" class="chart-link">Chart</button>`;
   }
 
   showGrade(grade) {
@@ -359,6 +384,87 @@ export class UI {
     this.revealed = v;
   }
 
+  sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  // A chip slides between the dealer and the betting circle so the
+  // outcome reads as money moving, not just a label appearing.
+  flyChip(fromEl, toEl, cls) {
+    const table = $('.table');
+    if (!table || !fromEl || !toEl) return;
+    const t = table.getBoundingClientRect();
+    const a = fromEl.getBoundingClientRect();
+    const b = toEl.getBoundingClientRect();
+    if (!a.width || !b.width) return;
+    const el = document.createElement('div');
+    el.className = `fly-chip chip-badge ${cls}`;
+    el.style.left = `${a.left - t.left + a.width / 2}px`;
+    el.style.top = `${a.top - t.top + a.height / 2}px`;
+    table.appendChild(el);
+    const dx = b.left + b.width / 2 - (a.left + a.width / 2);
+    const dy = b.top + b.height / 2 - (a.top + a.height / 2);
+    const send = () => {
+      el.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    };
+    requestAnimationFrame(send);
+    setTimeout(send, 60);
+    setTimeout(() => el.remove(), 1000);
+  }
+
+  clearBanner() {
+    this.outcomeToken = (this.outcomeToken || 0) + 1;
+    this.resultsVisible = true;
+    if (this.n.roundBanner) this.n.roundBanner.className = 'round-banner';
+  }
+
+  async showRoundOutcome(game) {
+    this.outcomeToken = (this.outcomeToken || 0) + 1;
+    const token = this.outcomeToken;
+    this.resultsVisible = false;
+    this.render(game);
+    this.n.roundBanner.className = 'round-banner';
+
+    await this.sleep(480);
+    if (token !== this.outcomeToken) return;
+
+    const dealerEl = this.n.dealerHand;
+    const spots = [...document.querySelectorAll('.player-hand .bet-spot')];
+    game.playerHands.forEach((hand, i) => {
+      const spot = spots[i];
+      if (!spot) return;
+      const cls = chipClass(hand.bet);
+      if (hand.result === 'win' || hand.result === 'blackjack') this.flyChip(dealerEl, spot, cls);
+      else if (hand.result === 'lose' || hand.result === 'bust') this.flyChip(spot, dealerEl, cls);
+    });
+
+    await this.sleep(700);
+    if (token !== this.outcomeToken) return;
+
+    this.resultsVisible = true;
+    this.render(game);
+    this.showNet(game.lastNet);
+    this.showBanner(game);
+  }
+
+  showBanner(game) {
+    const net = game.lastNet || 0;
+    const el = this.n.roundBanner;
+    const hands = game.playerHands;
+    const blackjack = hands.some((h) => h.result === 'blackjack');
+    let title;
+    let tone;
+    if (blackjack && net > 0) { title = 'Blackjack'; tone = 'good'; }
+    else if (net > 0) { title = 'You win'; tone = 'good'; }
+    else if (net < 0) { title = 'Dealer wins'; tone = 'bad'; }
+    else { title = 'Push'; tone = 'push'; }
+    this.showGrade(null);
+    el.innerHTML = `<div class="banner-inner"><strong>${title}</strong>${
+      net ? `<span>${net > 0 ? '+' : '\u2212'}${fmt(Math.abs(net))}</span>` : ''
+    }</div>`;
+    el.className = `round-banner show ${tone}`;
+  }
+
   showNet(net) {
     const el = this.n.netFlash;
     if (!el || !net) return;
@@ -376,6 +482,7 @@ export class UI {
     wrap.innerHTML = `
       <div class="modal-scrim"></div>
       <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-grip"></div>
         <header class="modal-head">
           <h2>${title}</h2>
           <button class="modal-close" aria-label="Close">✕</button>
@@ -386,7 +493,11 @@ export class UI {
     $('.modal-scrim', wrap).addEventListener('click', close);
     $('.modal-close', wrap).addEventListener('click', close);
     this.n.modalRoot.appendChild(wrap);
-    requestAnimationFrame(() => wrap.classList.add('open'));
+    // rAF alone can stall while the page is backgrounded, which would
+    // leave the drawer parked off-screen.
+    const reveal = () => wrap.classList.add('open');
+    requestAnimationFrame(reveal);
+    setTimeout(reveal, 60);
     if (onMount) onMount(wrap, close);
     return { wrap, close };
   }

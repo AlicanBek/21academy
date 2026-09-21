@@ -18,9 +18,9 @@ const game = new Game({
     }
     ui.render(game);
     if (ev.type === 'settle') {
-      ui.showNet(game.lastNet);
       persist();
       busy = false;
+      ui.showRoundOutcome(game);
     }
   },
 });
@@ -60,6 +60,7 @@ const ui = new UI({
     busy = true;
     ui.setRevealed(false);
     ui.showGrade(null);
+    ui.clearBanner();
 
     // Seat count changes take effect between rounds.
     const wanted = Math.max(0, Math.min(5, state.settings.aiPlayers));
