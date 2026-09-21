@@ -3,7 +3,7 @@
 const KEY = 'twentyone.academy.v1';
 
 export const DEFAULT_SETTINGS = {
-  aiPlayers: 2,
+  aiPlayers: 0,
   fastPlay: false,
   autoReveal: false,
   showCount: false,

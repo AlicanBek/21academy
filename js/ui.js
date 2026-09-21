@@ -11,11 +11,13 @@ import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js';
 const $ = (sel, root = document) => root.querySelector(sel);
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
 
-function cardFace(card) {
-  const node = document.createElement('div');
-  node.className = `card${isRed(card.suit) ? ' red' : ''}`;
-  node.innerHTML = `<span class="r">${rankLabel(card.rank)}</span><span class="s">${suitGlyph(card.suit)}</span>`;
-  return node;
+// Corner index top-left and bottom-right plus a centre pip, the way a
+// real card reads when the hand is fanned.
+function cardHtml(card) {
+  const r = rankLabel(card.rank);
+  const s = suitGlyph(card.suit);
+  const index = `<b>${r}</b><i>${s}</i>`;
+  return `<span class="idx">${index}</span><span class="pip">${s}</span><span class="idx bot">${index}</span>`;
 }
 
 function setCard(node, card, faceDown) {
@@ -31,7 +33,15 @@ function setCard(node, card, faceDown) {
     node.classList.add('flip');
   }
   node.classList.toggle('red', isRed(card.suit));
-  node.innerHTML = `<span class="r">${rankLabel(card.rank)}</span><span class="s">${suitGlyph(card.suit)}</span>`;
+  node.innerHTML = cardHtml(card);
+}
+
+// Chips follow casino colours, so the bet badge shows the right one.
+function chipClass(amount) {
+  if (amount >= 1000) return 'c1000';
+  if (amount >= 500) return 'c500';
+  if (amount >= 100) return 'c100';
+  return 'c25';
 }
 
 function syncHand(el, cards, holeIndex = -1) {
@@ -213,14 +223,17 @@ export class UI {
           <div class="hand"></div>
           <div class="hand-meta">
             <span class="total-badge"></span>
-            <span class="hand-bet"></span>
+            <span class="bet-spot"><span class="hand-bet"></span></span>
           </div>
           <div class="hand-result"></div>`;
         root.appendChild(node);
       }
       syncHand($('.hand', node), hand.cards, -1);
       $('.total-badge', node).textContent = totalText(hand.cards, false);
-      $('.hand-bet', node).textContent = `${fmt(hand.bet)}${hand.doubled ? ' ×2' : ''}`;
+      const betEl = $('.hand-bet', node);
+      betEl.className = `hand-bet chip-badge ${chipClass(hand.bet)}${hand.doubled ? ' doubled' : ''}`;
+      betEl.textContent = fmt(hand.bet);
+      betEl.title = hand.doubled ? 'Doubled' : '';
       const resultEl = $('.hand-result', node);
       resultEl.textContent = hand.result ? RESULT_TEXT[hand.result] : '';
       node.className = `player-hand${
@@ -241,6 +254,7 @@ export class UI {
     if (betting) {
       const bet = this.h.getBet();
       this.n.betAmount.textContent = fmt(bet);
+      this.n.betAmount.className = `bet-amount ${chipClass(bet)}`;
       const broke = game.stats.bankroll < TABLE_MIN;
       this.n.dealBtn.disabled = broke || bet < TABLE_MIN || bet > game.stats.bankroll;
       this.n.dealBtn.textContent = game.phase === 'settle' ? 'Next hand' : 'Deal';

@@ -5,7 +5,7 @@
 <title>21 Academy</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="description" content="Blackjack with a basic strategy coach that grades every move.">
-<meta name="theme-color" content="#0d1512">
+<meta name="theme-color" content="#120a09">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -43,6 +43,30 @@
       <div class="hand dealer-hand" id="dealerHand"></div>
       <div class="dealer-meta"><span class="total-badge" id="dealerTotal" hidden></span></div>
     </section>
+
+    <svg class="felt-art ins-arc" viewBox="0 0 340 48" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+      <defs>
+        <path id="insArcLine" d="M 26 40 Q 170 4 314 40"/>
+        <path id="insArcText" d="M 26 58 Q 170 22 314 58"/>
+      </defs>
+      <use href="#insArcLine" class="arc-line outer"/>
+      <text class="arc-text small">
+        <textPath href="#insArcText" startOffset="50%" text-anchor="middle">INSURANCE PAYS 2 TO 1</textPath>
+      </text>
+    </svg>
+
+    <svg class="felt-art main" viewBox="0 0 340 152" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+      <defs>
+        <path id="feltArcLine" d="M 12 96 Q 170 10 328 96"/>
+        <path id="feltArcText" d="M 12 124 Q 170 38 328 124"/>
+      </defs>
+      <use href="#feltArcLine" class="arc-line outer"/>
+      <use href="#feltArcLine" class="arc-line inner"/>
+      <text class="arc-text">
+        <textPath href="#feltArcText" startOffset="50%" text-anchor="middle">BLACKJACK PAYS 3 TO 2</textPath>
+      </text>
+      <text class="felt-line" x="170" y="142" text-anchor="middle">DEALER MUST HIT SOFT 17</text>
+    </svg>
 
     <div class="table-msg" id="tableMsg"></div>
     <div class="grade" id="grade"></div>
@@ -84,7 +108,7 @@
         <button class="chip c25" data-chip="25"><span>25</span></button>
         <button class="chip c100" data-chip="100"><span>100</span></button>
         <button class="chip c500" data-chip="500"><span>500</span></button>
-        <button class="chip c1000" data-chip="1000"><span>1K</span></button>
+        <button class="chip c1000" data-chip="1000"><span>1000</span></button>
       </div>
       <p class="broke-note" id="brokeNote" hidden>Out of chips. Open Settings to add 5,000.</p>
       <button class="deal-btn" id="dealBtn">Deal</button>

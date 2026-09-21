@@ -39,7 +39,7 @@ Start with 5,000. A refill of 5,000 sits in Settings and unlocks **only** when y
 
 ## Settings
 
-- 0 to 5 bots at the table, playing basic strategy themselves
+- Bots at the table, 0 to 5. Defaults to 0, so it's you against the dealer
 - Fast play, for shorter deal animations
 - Running count display (Hi-Lo), for when the count trainer lands
 
