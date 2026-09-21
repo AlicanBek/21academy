@@ -11,8 +11,8 @@
   --good: #4bd39c;
   --bad: #ff7a6b;
   --push: #8bb9ff;
-  --card-w: 76px;
-  --card-h: 106px;
+  --card-w: 72px;
+  --card-h: 100px;
   --radius: 14px;
   --vh: 1vh;
 }
@@ -176,38 +176,26 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   flex: 0 0 auto;
   text-align: center;
   margin-bottom: auto;
-  min-height: 152px;
+  min-height: 156px;
   position: relative;
   z-index: 1;
 }
-.hand-row { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.hand-meta { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 9px; min-height: 25px; }
 
 .total-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  min-width: 46px;
-  height: 34px;
-  padding: 0 11px;
-  border-radius: 9px;
-  background: #f8f5ef;
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.45);
-  color: #17181a;
-  font-size: 18px;
-  font-weight: 800;
+  min-width: 38px;
+  height: 25px;
+  padding: 0 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(255, 226, 179, 0.28);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-}
-
-.total-badge::before {
-  content: '';
-  position: absolute;
-  left: -5px;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 5px solid transparent;
-  border-left: 0;
-  border-right-color: #f8f5ef;
 }
 
 /* table printing */
@@ -293,7 +281,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40px;
+  font-size: 38px;
   opacity: 0.9;
 }
 
@@ -383,7 +371,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  min-height: 178px;
+  min-height: 162px;
   position: relative;
   z-index: 1;
 }
@@ -409,11 +397,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   margin-top: 8px;
 }
 
-.hand-foot { margin-top: 9px; min-height: 25px; }
-
 .hand-bet {
   display: inline-block;
-  padding: 4px 13px;
+  padding: 4px 12px;
   border-radius: 11px;
   background: rgba(0, 0, 0, 0.42);
   box-shadow: inset 0 0 0 1px rgba(246, 227, 187, 0.22);
@@ -815,35 +801,38 @@ td.hl { box-shadow: 0 0 0 2px #fff, 0 0 12px rgba(255, 255, 255, 0.6); position:
 .rules-list li { margin-bottom: 4px; }
 
 @media (min-height: 840px) {
-  :root { --card-w: 88px; --card-h: 123px; }
-  .hand .card:not(:first-child) { margin-left: -26px; }
-  .card .pip { font-size: 47px; }
-  .card .idx b { font-size: 23px; }
+  :root { --card-w: 82px; --card-h: 115px; }
+  .hand .card:not(:first-child) { margin-left: -24px; }
+  .card .pip { font-size: 44px; }
+  .card .idx b { font-size: 22px; }
   .card .idx i { font-size: 15px; }
   .felt-art { max-width: 340px; }
   .dealer-area { min-height: 172px; }
-  .player-area { min-height: 196px; }
-  .total-badge { height: 38px; min-width: 52px; font-size: 20px; }
+  .player-area { min-height: 180px; }
+  .total-badge { height: 28px; min-width: 42px; font-size: 16px; }
+  .hand-meta { min-height: 28px; }
   .hand-bet { font-size: 13px; }
   .hand-result { font-size: 22px; }
 }
 
 @media (max-height: 740px) {
-  :root { --card-w: 62px; --card-h: 87px; }
+  :root { --card-w: 60px; --card-h: 84px; }
   .hand .card:not(:first-child) { margin-left: -18px; }
   .table.with-bots .felt-art { display: none; }
-  .total-badge { height: 30px; min-width: 40px; font-size: 16px; }
-  .card .pip { font-size: 33px; }
+  .total-badge { height: 23px; min-width: 34px; font-size: 14px; }
+  .card .pip { font-size: 32px; }
   .card .idx b { font-size: 17px; }
   .felt-art { max-width: 250px; }
   .dealer-area { min-height: 124px; }
-  .player-area { min-height: 152px; }
-  .hand-foot { margin-top: 7px; min-height: 23px; }
+  .player-area { min-height: 140px; }
+  .hand-meta { margin-top: 7px; min-height: 23px; }
   .chip { max-width: 48px; max-height: 48px; }
   .act-btn, .deal-btn, .mini-btn { min-height: 48px; font-size: 14px; }
   .deal-btn { font-size: 15px; }
   .action-row { height: 48px; }
   .broke-note { bottom: calc(48px + max(10px, env(safe-area-inset-bottom)) + 10px); }
   .coach { height: 52px; }
-  .round-banner strong { font-size: 28px; }
+  .round-banner { top: 31%; }
+  .round-banner strong { font-size: 26px; }
+  .banner-inner { padding: 8px 20px 10px; }
 }
