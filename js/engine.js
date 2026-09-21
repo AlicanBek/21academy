@@ -2,8 +2,8 @@
 // double any two, DAS, split to 4 hands, aces one card and no resplit,
 // insurance offered, no surrender.
 
-import { Shoe, handValue, isBlackjack, isPair } from './cards.js?v=4';
-import { advise } from './strategy.js?v=4';
+import { Shoe, handValue, isBlackjack, isPair } from './cards.js?v=5';
+import { advise } from './strategy.js?v=5';
 
 export const RULES = {
   decks: 6,
@@ -90,7 +90,8 @@ export class Game {
   }
 
   wait(ms) {
-    const factor = this.settings.fastPlay ? 0.45 : 1;
+    // Fast play lands roughly where the default used to sit.
+    const factor = this.settings.fastPlay ? 0.55 : 1;
     return new Promise((r) => setTimeout(r, Math.max(0, ms * factor)));
   }
 
@@ -140,7 +141,7 @@ export class Game {
       this.shoe.shuffle();
       this.message = 'Shuffling a fresh shoe';
       this.emit('shuffle');
-      await this.wait(700);
+      await this.wait(950);
     }
 
     handSeq = 0;
@@ -166,11 +167,11 @@ export class Game {
       for (const seat of this.seats) {
         seat.hands[0].cards.push(this.shoe.draw());
         this.emit('deal');
-        await this.wait(190);
+        await this.wait(300);
       }
       this.dealer.cards.push(this.shoe.draw());
       this.emit('deal');
-      await this.wait(190);
+      await this.wait(300);
     }
 
     const up = this.dealer.cards[0];
@@ -187,7 +188,7 @@ export class Game {
         this.message = 'Dealer has blackjack';
         this.phase = 'settle';
         this.emit('update');
-        await this.wait(600);
+        await this.wait(850);
         this.settle();
         return;
       }
@@ -236,7 +237,7 @@ export class Game {
     }
     this.insurance.offered = false;
     this.emit('update');
-    await this.wait(200);
+    await this.wait(320);
   }
 
   handOptions(seatIndex, handIndex) {
@@ -264,7 +265,7 @@ export class Game {
       this.activeHand = h;
       this.emit('update');
 
-      if (seat.kind === 'ai') await this.wait(320);
+      if (seat.kind === 'ai') await this.wait(430);
 
       while (!hand.done) {
         const { total } = handValue(hand.cards);
@@ -288,7 +289,7 @@ export class Game {
           action = decision.action;
           this.gradeMove(action, chart, decision.revealed);
         } else {
-          await this.wait(420);
+          await this.wait(560);
           action = chart.action;
           if (action === 'split' && !opts.canSplit) action = 'hit';
           if (action === 'double' && !opts.canDouble) action = 'hit';
@@ -298,7 +299,7 @@ export class Game {
       }
 
       this.emit('update');
-      if (seat.kind === 'ai') await this.wait(220);
+      if (seat.kind === 'ai') await this.wait(300);
     }
   }
 
@@ -310,7 +311,7 @@ export class Game {
     if (action === 'hit') {
       hand.cards.push(this.shoe.draw());
       this.emit('deal');
-      await this.wait(240);
+      await this.wait(380);
       if (handValue(hand.cards).total >= 21) hand.done = true;
       return;
     }
@@ -326,7 +327,7 @@ export class Game {
       hand.doubled = true;
       hand.cards.push(this.shoe.draw());
       this.emit('deal');
-      await this.wait(300);
+      await this.wait(450);
       hand.done = true;
       return;
     }
@@ -343,10 +344,10 @@ export class Game {
 
       hand.cards.push(this.shoe.draw());
       this.emit('deal');
-      await this.wait(240);
+      await this.wait(360);
       next.cards.push(this.shoe.draw());
       this.emit('deal');
-      await this.wait(240);
+      await this.wait(360);
     }
   }
 
@@ -354,7 +355,7 @@ export class Game {
     this.phase = 'dealer';
     this.dealer.holeDown = false;
     this.emit('update');
-    await this.wait(450);
+    await this.wait(680);
 
     const anyLive = this.seats.some((s) =>
       s.hands.some((h) => handValue(h.cards).total <= 21)
@@ -370,7 +371,7 @@ export class Game {
       if (!mustHit) break;
       this.dealer.cards.push(this.shoe.draw());
       this.emit('deal');
-      await this.wait(420);
+      await this.wait(600);
     }
   }
 

@@ -296,8 +296,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
     inset 0 0 0 5px #16315e;
 }
 
-.card.enter { animation: dealIn 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
-.card.flip { animation: flip 0.3s ease both; }
+.card.enter { animation: dealIn 0.42s cubic-bezier(0.2, 0.85, 0.3, 1.1) both; }
+.card.flip { animation: flip 0.46s ease both; }
 
 @keyframes dealIn {
   from { opacity: 0; transform: translate(16px, -52px) rotate(-11deg) scale(0.92); }
@@ -426,7 +426,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .player-hand.r-blackjack .hand-result,
 .player-hand.r-lose .hand-result,
 .player-hand.r-bust .hand-result,
-.player-hand.r-push .hand-result { animation: resultPop 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+.player-hand.r-push .hand-result { animation: resultPop 0.46s cubic-bezier(0.2, 0.9, 0.3, 1.35) both; }
 
 @keyframes resultPop {
   from { opacity: 0; transform: scale(0.7); }
@@ -441,7 +441,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   text-align: center;
   opacity: 0;
   transform: scale(0.88);
-  transition: opacity 0.26s, transform 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.4);
+  transition: opacity 0.4s, transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.35);
   pointer-events: none;
   z-index: 22;
 }
@@ -556,7 +556,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   text-align: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.18s, transform 0.18s;
+  transition: opacity 0.28s, transform 0.28s;
   z-index: 30;
   backdrop-filter: blur(8px);
 }

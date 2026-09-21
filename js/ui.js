@@ -1,12 +1,12 @@
 // All DOM work. Hands are synced card by card so freshly dealt cards
 // animate once instead of the whole table flashing on every update.
 
-import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=4';
+import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=5';
 import {
   DEALER_COLS, HARD, SOFT, PAIRS, PAIR_ROWS, SOFT_ROWS, HARD_ROWS,
   CODE_LABEL, rowLabel, advise,
-} from './strategy.js?v=4';
-import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=4';
+} from './strategy.js?v=5';
+import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=5';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
@@ -386,7 +386,7 @@ export class UI {
     }
     this.gradeTimer = setTimeout(() => {
       el.className = 'grade';
-    }, grade.correct ? 1400 : 3200);
+    }, grade.correct ? 1800 : 3800);
   }
 
   setRevealed(v) {
@@ -410,7 +410,7 @@ export class UI {
     this.render(game);
     this.n.roundBanner.className = 'round-banner';
 
-    await this.sleep(620);
+    await this.sleep(850);
     if (token !== this.outcomeToken) return;
 
     this.resultsVisible = true;
@@ -443,7 +443,7 @@ export class UI {
     clearTimeout(this.netTimer);
     el.textContent = `${net > 0 ? '+' : '\u2212'}${fmt(Math.abs(net))}`;
     el.className = `net-flash show ${net > 0 ? 'good' : 'bad'}`;
-    this.netTimer = setTimeout(() => { el.className = 'net-flash'; }, 1800);
+    this.netTimer = setTimeout(() => { el.className = 'net-flash'; }, 2400);
   }
 
   // ---- modals --------------------------------------------------------
