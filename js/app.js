@@ -54,6 +54,14 @@ const ui = new UI({
     ui.render(game);
   },
 
+  canBet: () => game.phase === 'bet',
+
+  nextHand() {
+    ui.clearBanner();
+    ui.showGrade(null);
+    game.nextRound();
+  },
+
   async deal() {
     if (busy) return;
     if (bet < TABLE_MIN || bet > state.stats.bankroll) return;
@@ -66,7 +74,6 @@ const ui = new UI({
     const wanted = Math.max(0, Math.min(5, state.settings.aiPlayers));
     if (game.seats.length - 1 !== wanted) game.buildSeats();
 
-    if (game.phase === 'settle') game.nextRound();
     persist();
     await game.playRound(bet);
     bet = clampBet(bet);

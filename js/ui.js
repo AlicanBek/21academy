@@ -105,14 +105,16 @@ export class UI {
       tableMsg: $('#tableMsg'),
       coach: $('#coach'),
       grade: $('#grade'),
-      betBar: $('#betBar'),
-      actionBar: $('#actionBar'),
+      betGroup: $('#betGroup'),
+      actionGroup: $('#actionGroup'),
+      insGroup: $('#insGroup'),
+      settleGroup: $('#settleGroup'),
+      nextBtn: $('#nextBtn'),
       betAmount: $('#betAmount'),
       dealBtn: $('#dealBtn'),
       rebetBtn: $('#rebetBtn'),
       clearBtn: $('#clearBtn'),
       chipRow: $('#chipRow'),
-      insuranceBar: $('#insuranceBar'),
       modalRoot: $('#modalRoot'),
     };
   }
@@ -124,19 +126,20 @@ export class UI {
 
     this.n.chipRow.addEventListener('click', (e) => {
       const chip = e.target.closest('[data-chip]');
-      if (chip) this.h.addChip(Number(chip.dataset.chip));
+      if (chip && !chip.disabled && this.h.canBet()) this.h.addChip(Number(chip.dataset.chip));
     });
     this.n.clearBtn.addEventListener('click', () => this.h.clearBet());
     this.n.rebetBtn.addEventListener('click', () => this.h.rebet());
     this.n.dealBtn.addEventListener('click', () => this.h.deal());
+    this.n.nextBtn.addEventListener('click', () => this.h.nextHand());
 
-    this.n.actionBar.addEventListener('click', (e) => {
+    this.n.actionGroup.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn || btn.disabled || this.tapTooSoon()) return;
       this.h.act(btn.dataset.action, this.revealed);
     });
 
-    this.n.insuranceBar.addEventListener('click', (e) => {
+    this.n.insGroup.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-ins]');
       if (!btn || this.tapTooSoon()) return;
       this.h.insurance(btn.dataset.ins, this.revealed);
@@ -237,11 +240,11 @@ export class UI {
         node = document.createElement('div');
         node.className = 'player-hand';
         node.innerHTML = `
-          <div class="hand"></div>
-          <div class="hand-meta">
+          <div class="hand-row">
+            <div class="hand"></div>
             <span class="total-badge"></span>
-            <span class="hand-bet"></span>
           </div>
+          <div class="hand-foot"><span class="hand-bet"></span></div>
           <div class="hand-result"></div>`;
         root.appendChild(node);
       }
@@ -249,7 +252,7 @@ export class UI {
       $('.total-badge', node).textContent = totalText(hand.cards, false);
       const betEl = $('.hand-bet', node);
       betEl.className = `hand-bet${hand.doubled ? ' doubled' : ''}`;
-      betEl.textContent = `${fmt(hand.bet)}${hand.doubled ? ' ×2' : ''}`;
+      betEl.textContent = `BET ${fmt(hand.bet)}${hand.doubled ? ' ×2' : ''}`;
       const shown = this.resultsVisible ? hand.result : null;
       const resultEl = $('.hand-result', node);
       resultEl.textContent = shown ? RESULT_TEXT[shown] : '';
@@ -260,47 +263,49 @@ export class UI {
   }
 
   renderControls(game) {
-    const betting = game.phase === 'bet' || game.phase === 'settle';
+    const betting = game.phase === 'bet';
+    const settling = game.phase === 'settle';
     const acting = game.phase === 'player' && !!game.currentHand;
     const insuring = game.phase === 'insurance';
 
-    this.n.betBar.hidden = !betting;
-    this.n.actionBar.hidden = !acting;
-    this.n.insuranceBar.hidden = !insuring;
+    this.n.betGroup.hidden = !betting;
+    this.n.settleGroup.hidden = !settling;
+    this.n.actionGroup.hidden = !acting;
+    this.n.insGroup.hidden = !insuring;
 
-    // The bet readout always has something to say: what you are about to
-    // put up, or what is already on the table.
     const pending = this.h.getBet();
     const atRisk = game.playerHands.reduce((sum, h) => sum + h.bet, 0);
     const shownBet = betting ? pending : atRisk || pending;
     this.n.betAmount.textContent = fmt(shownBet);
     this.n.betAmount.className = `bet-amount ${chipClass(shownBet)}`;
 
+    const broke = game.stats.bankroll < TABLE_MIN;
+    $('#brokeNote').hidden = !(betting && broke);
+
+    // The rail stays on screen all round; it only takes taps while betting.
+    [...this.n.chipRow.children].forEach((chip) => {
+      const v = Number(chip.dataset.chip);
+      chip.disabled = betting && pending + v > Math.min(TABLE_MAX, game.stats.bankroll);
+    });
+    this.n.chipRow.classList.toggle('locked', !betting);
+
     if (betting) {
-      const broke = game.stats.bankroll < TABLE_MIN;
       this.n.dealBtn.disabled = broke || pending < TABLE_MIN || pending > game.stats.bankroll;
-      this.n.dealBtn.textContent = game.phase === 'settle' ? 'Next hand' : 'Deal';
-      [...this.n.chipRow.children].forEach((chip) => {
-        const v = Number(chip.dataset.chip);
-        chip.disabled = pending + v > Math.min(TABLE_MAX, game.stats.bankroll);
-      });
-      $('#brokeNote').hidden = !broke;
     }
 
     if (acting) {
       const opts = game.handOptions(0, game.activeHand);
       const map = { hit: true, stand: true, double: opts.canDouble, split: opts.canSplit };
-      [...this.n.actionBar.querySelectorAll('[data-action]')].forEach((btn) => {
+      [...this.n.actionGroup.querySelectorAll('[data-action]')].forEach((btn) => {
         btn.disabled = !map[btn.dataset.action];
       });
     }
 
     if (insuring) {
       const cost = Math.floor(game.playerHands[0].bet / 2);
-      $('#insText').textContent = game.insurance.evenMoney
-        ? 'Dealer shows an ace. Take even money?'
-        : `Dealer shows an ace. Insurance costs ${fmt(cost)}.`;
-      $('#insYes').textContent = game.insurance.evenMoney ? 'Even money' : `Insure ${fmt(cost)}`;
+      this.n.insGroup.querySelector('[data-ins="yes"]').textContent = game.insurance.evenMoney
+        ? 'Even money'
+        : `Insure ${fmt(cost)}`;
     }
   }
 
@@ -324,7 +329,11 @@ export class UI {
       el.className = 'coach';
       el.innerHTML = `
         <button id="revealBtn" class="reveal-btn">Hint</button>
-        <span class="graded-note">No hint yet, so this move gets graded</span>
+        <span class="graded-note">${
+          insuring
+            ? 'Dealer shows an ace'
+            : 'No hint yet, so this move gets graded'
+        }</span>
         <button id="coachChartLink" class="chart-link">Chart</button>`;
       return;
     }

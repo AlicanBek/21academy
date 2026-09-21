@@ -37,8 +37,10 @@
   <main class="table">
     <section class="dealer-area">
       <div class="seat-label">Dealer</div>
-      <div class="hand dealer-hand" id="dealerHand"></div>
-      <div class="dealer-meta"><span class="total-badge" id="dealerTotal" hidden></span></div>
+      <div class="hand-row">
+        <div class="hand dealer-hand" id="dealerHand"></div>
+        <span class="total-badge" id="dealerTotal" hidden></span>
+      </div>
     </section>
 
     <svg class="felt-art" viewBox="0 0 340 168" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
@@ -82,43 +84,40 @@
       </div>
     </div>
 
-    <div class="phase-pane">
+    <div class="chip-row" id="chipRow">
+      <button class="chip c25" data-chip="25"><span>25</span></button>
+      <button class="chip c100" data-chip="100"><span>100</span></button>
+      <button class="chip c500" data-chip="500"><span>500</span></button>
+      <button class="chip c1000" data-chip="1000"><span>1000</span></button>
+    </div>
 
-      <div class="action-bar" id="actionBar" hidden>
-        <div class="act-row">
-          <button class="act-btn split" data-action="split">Split</button>
-          <button class="act-btn double" data-action="double">Double</button>
-        </div>
-        <div class="act-row">
-          <button class="act-btn hit" data-action="hit">Hit</button>
-          <button class="act-btn stand" data-action="stand">Stand</button>
-        </div>
+    <div class="action-row">
+
+      <div class="row-group bet-group" id="betGroup">
+        <button class="mini-btn" id="clearBtn">Clear</button>
+        <button class="deal-btn" id="dealBtn">Deal</button>
+        <button class="mini-btn" id="rebetBtn">Max</button>
       </div>
 
-      <div class="insurance-bar" id="insuranceBar" hidden>
-        <p id="insText"></p>
-        <div class="act-row">
-          <button class="act-btn insure" data-ins="yes" id="insYes">Insure</button>
-          <button class="act-btn decline" data-ins="no">No thanks</button>
-        </div>
+      <div class="row-group play-group" id="actionGroup" hidden>
+        <button class="act-btn split" data-action="split">Split</button>
+        <button class="act-btn double" data-action="double"><i>&times;2</i>Double</button>
+        <button class="act-btn stand" data-action="stand">Stand</button>
+        <button class="act-btn hit" data-action="hit">Hit</button>
       </div>
 
-      <div class="bet-bar" id="betBar">
-        <div class="chip-row" id="chipRow">
-          <button class="chip c25" data-chip="25"><span>25</span></button>
-          <button class="chip c100" data-chip="100"><span>100</span></button>
-          <button class="chip c500" data-chip="500"><span>500</span></button>
-          <button class="chip c1000" data-chip="1000"><span>1000</span></button>
-        </div>
-        <div class="bet-actions">
-          <button class="mini-btn" id="clearBtn">Clear</button>
-          <button class="deal-btn" id="dealBtn">Deal</button>
-          <button class="mini-btn" id="rebetBtn">Max</button>
-        </div>
-        <p class="broke-note" id="brokeNote" hidden>Out of chips. Open Settings to add 5,000.</p>
+      <div class="row-group ins-group" id="insGroup" hidden>
+        <button class="act-btn insure" data-ins="yes" id="insYes">Insure</button>
+        <button class="act-btn decline" data-ins="no">No thanks</button>
+      </div>
+
+      <div class="row-group settle-group" id="settleGroup" hidden>
+        <button class="deal-btn" id="nextBtn">Next hand</button>
       </div>
 
     </div>
+
+    <p class="broke-note" id="brokeNote" hidden>Out of chips. Open Settings to add 5,000.</p>
   </footer>
 </div>
 
