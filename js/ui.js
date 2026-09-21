@@ -317,7 +317,7 @@ export class UI {
         <span class="advice-action">${advice.label}</span>
         ${where ? `<span class="advice-where">${where}</span>` : ''}
       </div>
-      <div class="advice-note">${advice.chartLabel}</div>
+      ${advice.chartLabel && advice.chartLabel !== advice.label ? `<div class="advice-note">${advice.chartLabel}</div>` : ''}
       <button id="coachChartLink" class="chart-link">Full chart</button>`;
   }
 
