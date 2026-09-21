@@ -643,8 +643,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .action-row { position: relative; height: 54px; }
 .row-group { position: absolute; inset: 0; display: grid; gap: 8px; }
 .bet-group { grid-template-columns: auto 1fr auto; }
-.play-group { grid-template-columns: repeat(4, 1fr); }
+.play-group { grid-template-columns: repeat(3, 1fr); }
 .ins-group { grid-template-columns: 1fr 1fr; }
+.split-group { grid-template-columns: 1fr 1fr; }
 .settle-group { grid-template-columns: 1fr; }
 
 .act-btn {

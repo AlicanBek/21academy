@@ -2,8 +2,8 @@
 // double any two, DAS, split to 4 hands, aces one card and no resplit,
 // insurance offered, no surrender.
 
-import { Shoe, handValue, isBlackjack, isPair } from './cards.js?v=6';
-import { advise } from './strategy.js?v=6';
+import { Shoe, handValue, isBlackjack, isPair } from './cards.js?v=7';
+import { advise } from './strategy.js?v=7';
 
 export const RULES = {
   decks: 6,
@@ -37,6 +37,7 @@ function makeHand(bet, opts = {}) {
     doubled: false,
     fromSplit: !!opts.fromSplit,
     splitAce: !!opts.splitAce,
+    splitDeclined: false,
     done: false,
     result: null,
     payout: 0,
@@ -249,6 +250,7 @@ export class Game {
     const canDouble = first && !hand.splitAce && funds >= hand.bet;
     const canSplit =
       first &&
+      !hand.splitDeclined &&
       isPair(hand.cards) &&
       seat.hands.length < RULES.maxHands &&
       !(hand.splitAce && !RULES.resplitAces) &&
@@ -266,6 +268,33 @@ export class Game {
       this.emit('update');
 
       if (seat.kind === 'ai') await this.wait(430);
+
+      // A pair is offered the way insurance is: answer it, then play on.
+      if (seat.kind === 'player' && this.handOptions(seatIndex, h).canSplit) {
+        const opts = this.handOptions(seatIndex, h);
+        const chart = advise({
+          cards: hand.cards,
+          dealerUp: this.dealer.cards[0],
+          canDouble: opts.canDouble,
+          canSplit: true,
+          das: RULES.das,
+        });
+        this.phase = 'splitOffer';
+        this.emit('update');
+        const choice = await this.awaitDecision();
+        const tookSplit = choice.action === 'split';
+        this.gradeSplitOffer(tookSplit, chart, choice.revealed);
+        this.phase = 'player';
+
+        if (tookSplit) {
+          await this.applyAction(seatIndex, h, 'split');
+          this.emit('update');
+          h -= 1;
+          continue;
+        }
+        hand.splitDeclined = true;
+        this.emit('update');
+      }
 
       while (!hand.done) {
         const { total } = handValue(hand.cards);
@@ -483,6 +512,32 @@ export class Game {
       this.lastGrade = { correct: true, chart };
     } else {
       this.lastGrade = { correct: false, chart, played: action };
+    }
+    this.emit('grade');
+  }
+
+  gradeSplitOffer(tookSplit, chart, revealed) {
+    this.stats.decisions += 1;
+    if (revealed) {
+      this.stats.revealed += 1;
+      this.lastGrade = null;
+      return;
+    }
+    this.stats.graded += 1;
+    const shouldSplit = chart.action === 'split';
+    const label = shouldSplit ? 'Split' : 'Don\u2019t split';
+    const chartLabel = shouldSplit
+      ? 'Split the pair'
+      : `Don\u2019t split this pair, ${chart.label.toLowerCase()} instead`;
+    if (tookSplit === shouldSplit) {
+      this.stats.correct += 1;
+      this.lastGrade = { correct: true, chart: { label, chartLabel } };
+    } else {
+      this.lastGrade = {
+        correct: false,
+        played: tookSplit ? 'split' : 'declined the split',
+        chart: { label, chartLabel },
+      };
     }
     this.emit('grade');
   }

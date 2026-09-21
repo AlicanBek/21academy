@@ -1,12 +1,12 @@
 // All DOM work. Hands are synced card by card so freshly dealt cards
 // animate once instead of the whole table flashing on every update.
 
-import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=6';
+import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=7';
 import {
   DEALER_COLS, HARD, SOFT, PAIRS, PAIR_ROWS, SOFT_ROWS, HARD_ROWS,
   CODE_LABEL, rowLabel, advise,
-} from './strategy.js?v=6';
-import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=6';
+} from './strategy.js?v=7';
+import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=7';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
@@ -108,6 +108,7 @@ export class UI {
       betGroup: $('#betGroup'),
       actionGroup: $('#actionGroup'),
       insGroup: $('#insGroup'),
+      splitGroup: $('#splitGroup'),
       settleGroup: $('#settleGroup'),
       nextBtn: $('#nextBtn'),
       betAmount: $('#betAmount'),
@@ -143,6 +144,12 @@ export class UI {
       const btn = e.target.closest('[data-ins]');
       if (!btn || this.tapTooSoon()) return;
       this.h.insurance(btn.dataset.ins, this.revealed);
+    });
+
+    this.n.splitGroup.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-split]');
+      if (!btn || this.tapTooSoon()) return;
+      this.h.splitChoice(btn.dataset.split, this.revealed);
     });
 
     this.n.coach.addEventListener('click', (e) => {
@@ -265,11 +272,13 @@ export class UI {
     const settling = game.phase === 'settle';
     const acting = game.phase === 'player' && !!game.currentHand;
     const insuring = game.phase === 'insurance';
+    const offeringSplit = game.phase === 'splitOffer';
 
     this.n.betGroup.hidden = !betting;
     this.n.settleGroup.hidden = !settling;
     this.n.actionGroup.hidden = !acting;
     this.n.insGroup.hidden = !insuring;
+    this.n.splitGroup.hidden = !offeringSplit;
 
     const pending = this.h.getBet();
     const atRisk = game.playerHands.reduce((sum, h) => sum + h.bet, 0);
@@ -293,7 +302,7 @@ export class UI {
 
     if (acting) {
       const opts = game.handOptions(0, game.activeHand);
-      const map = { hit: true, stand: true, double: opts.canDouble, split: opts.canSplit };
+      const map = { hit: true, stand: true, double: opts.canDouble };
       [...this.n.actionGroup.querySelectorAll('[data-action]')].forEach((btn) => {
         btn.disabled = !map[btn.dataset.action];
       });
@@ -308,7 +317,8 @@ export class UI {
   }
 
   renderCoach(game) {
-    const acting = game.phase === 'player' && !!game.currentHand;
+    const offeringSplit = game.phase === 'splitOffer';
+    const acting = (game.phase === 'player' || offeringSplit) && !!game.currentHand;
     const insuring = game.phase === 'insurance';
     const el = this.n.coach;
 
@@ -330,6 +340,8 @@ export class UI {
         <span class="graded-note">${
           insuring
             ? 'Dealer shows an ace'
+            : offeringSplit
+            ? 'You have a pair'
             : 'No hint yet, so this move gets graded'
         }</span>
         <button id="coachChartLink" class="chart-link">Chart</button>`;
@@ -350,6 +362,9 @@ export class UI {
         canSplit: opts.canSplit,
         das: RULES.das,
       });
+      if (offeringSplit && advice.action !== 'split') {
+        advice = { ...advice, label: 'Don\u2019t split', chartLabel: `Chart says ${advice.label.toLowerCase()} instead` };
+      }
       if (advice.rowKey !== null && advice.rowKey !== undefined) {
         where = `${rowLabel(advice.table, advice.rowKey)} vs ${DEALER_COLS[advice.col]}`;
       }
@@ -378,7 +393,12 @@ export class UI {
       el.className = 'grade good show';
       el.innerHTML = `<strong>Correct</strong><span>${grade.chart.label}</span>`;
     } else {
-      const played = grade.played === 'insurance' ? 'took insurance' : `played ${grade.played}`;
+      const phrases = {
+        insurance: 'took insurance',
+        split: 'split the pair',
+        'declined the split': 'declined the split',
+      };
+      const played = phrases[grade.played] || `played ${grade.played}`;
       el.className = 'grade bad show';
       el.innerHTML = `<strong>Chart says ${grade.chart.label}</strong><span>You ${played}. ${grade.chart.chartLabel}</span>`;
     }

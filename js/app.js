@@ -1,8 +1,8 @@
-import { Game, TABLE_MIN, TABLE_MAX } from './engine.js?v=6';
-import { UI } from './ui.js?v=6';
-import { load, save, resetAll } from './storage.js?v=6';
-import { advise, DEALER_COLS } from './strategy.js?v=6';
-import { RULES } from './engine.js?v=6';
+import { Game, TABLE_MIN, TABLE_MAX } from './engine.js?v=7';
+import { UI } from './ui.js?v=7';
+import { load, save, resetAll } from './storage.js?v=7';
+import { advise, DEALER_COLS } from './strategy.js?v=7';
+import { RULES } from './engine.js?v=7';
 
 const state = load();
 let bet = Math.max(TABLE_MIN, Math.min(state.settings.lastBet, state.stats.bankroll));
@@ -82,6 +82,11 @@ const ui = new UI({
 
   act(action, revealed) {
     game.submit(action, { revealed });
+    ui.setRevealed(false);
+  },
+
+  splitChoice(choice, revealed) {
+    game.submit(choice === 'yes' ? 'split' : 'nosplit', { revealed });
     ui.setRevealed(false);
   },
 
