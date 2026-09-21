@@ -180,6 +180,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   position: relative;
   z-index: 1;
 }
+.hand-top { margin-bottom: 7px; min-height: 22px; }
 .hand-meta { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 9px; min-height: 25px; }
 
 .total-badge {
@@ -371,7 +372,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  min-height: 162px;
+  min-height: 192px;
   position: relative;
   z-index: 1;
 }
@@ -399,8 +400,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 .hand-bet {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 11px;
+  padding: 3px 12px;
+  border-radius: 10px;
   background: rgba(0, 0, 0, 0.42);
   box-shadow: inset 0 0 0 1px rgba(246, 227, 187, 0.22);
   font-size: 12px;
@@ -468,17 +469,25 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 .table-msg {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 44%;
+  left: 50%;
+  top: 29%;
+  transform: translateX(-50%);
+  max-width: 88%;
+  padding: 9px 18px;
+  border-radius: 13px;
+  background: rgba(10, 6, 6, 0.62);
+  backdrop-filter: blur(6px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.10);
   text-align: center;
+  white-space: nowrap;
   font-size: 12px;
   letter-spacing: 1.4px;
   text-transform: uppercase;
-  color: rgba(255, 240, 220, 0.66);
+  color: rgba(255, 240, 220, 0.92);
   opacity: 0;
   transition: opacity 0.25s;
   pointer-events: none;
+  z-index: 21;
 }
 
 .table-msg.show { opacity: 1; }
@@ -808,7 +817,8 @@ td.hl { box-shadow: 0 0 0 2px #fff, 0 0 12px rgba(255, 255, 255, 0.6); position:
   .card .idx i { font-size: 15px; }
   .felt-art { max-width: 340px; }
   .dealer-area { min-height: 172px; }
-  .player-area { min-height: 180px; }
+  .player-area { min-height: 212px; }
+  .hand-top { min-height: 24px; }
   .total-badge { height: 28px; min-width: 42px; font-size: 16px; }
   .hand-meta { min-height: 28px; }
   .hand-bet { font-size: 13px; }
@@ -824,7 +834,8 @@ td.hl { box-shadow: 0 0 0 2px #fff, 0 0 12px rgba(255, 255, 255, 0.6); position:
   .card .idx b { font-size: 17px; }
   .felt-art { max-width: 250px; }
   .dealer-area { min-height: 124px; }
-  .player-area { min-height: 140px; }
+  .player-area { min-height: 166px; }
+  .hand-top { margin-bottom: 6px; min-height: 21px; }
   .hand-meta { margin-top: 7px; min-height: 23px; }
   .chip { max-width: 48px; max-height: 48px; }
   .act-btn, .deal-btn, .mini-btn { min-height: 48px; font-size: 14px; }

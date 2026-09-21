@@ -2,8 +2,8 @@
 // double any two, DAS, split to 4 hands, aces one card and no resplit,
 // insurance offered, no surrender.
 
-import { Shoe, handValue, isBlackjack, isPair } from './cards.js?v=5';
-import { advise } from './strategy.js?v=5';
+import { Shoe, handValue, isBlackjack, isPair } from './cards.js?v=6';
+import { advise } from './strategy.js?v=6';
 
 export const RULES = {
   decks: 6,
@@ -461,6 +461,7 @@ export class Game {
   nextRound() {
     this.phase = 'bet';
     this.preSettleBankroll = null;
+    this.message = '';
     this.dealer = { cards: [], holeDown: true };
     for (const seat of this.seats) seat.hands = [];
     this.lastGrade = null;

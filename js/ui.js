@@ -1,12 +1,12 @@
 // All DOM work. Hands are synced card by card so freshly dealt cards
 // animate once instead of the whole table flashing on every update.
 
-import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=5';
+import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=6';
 import {
   DEALER_COLS, HARD, SOFT, PAIRS, PAIR_ROWS, SOFT_ROWS, HARD_ROWS,
   CODE_LABEL, rowLabel, advise,
-} from './strategy.js?v=5';
-import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=5';
+} from './strategy.js?v=6';
+import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=6';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
@@ -240,11 +240,9 @@ export class UI {
         node = document.createElement('div');
         node.className = 'player-hand';
         node.innerHTML = `
+          <div class="hand-top"><span class="hand-bet"></span></div>
           <div class="hand"></div>
-          <div class="hand-meta">
-            <span class="total-badge"></span>
-            <span class="hand-bet"></span>
-          </div>
+          <div class="hand-meta"><span class="total-badge"></span></div>
           <div class="hand-result"></div>`;
         root.appendChild(node);
       }
