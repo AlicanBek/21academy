@@ -1,8 +1,8 @@
-import { Game, TABLE_MIN, TABLE_MAX } from './engine.js';
-import { UI } from './ui.js';
-import { load, save, resetAll } from './storage.js';
-import { advise, DEALER_COLS } from './strategy.js';
-import { RULES } from './engine.js';
+import { Game, TABLE_MIN, TABLE_MAX } from './engine.js?v=2';
+import { UI } from './ui.js?v=2';
+import { load, save, resetAll } from './storage.js?v=2';
+import { advise, DEALER_COLS } from './strategy.js?v=2';
+import { RULES } from './engine.js?v=2';
 
 const state = load();
 let bet = Math.max(TABLE_MIN, Math.min(state.settings.lastBet, state.stats.bankroll));

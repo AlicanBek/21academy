@@ -1,16 +1,9 @@
 // Network first so a deploy always wins, cache fallback so the homescreen
 // app still deals a hand with no signal.
-const CACHE = 'twentyone-v2';
+const CACHE = 'twentyone-v3';
 const SHELL = [
   './',
   './index.html',
-  './css/style.css',
-  './js/app.js',
-  './js/ui.js',
-  './js/engine.js',
-  './js/cards.js',
-  './js/strategy.js',
-  './js/storage.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -30,8 +23,11 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
+  // Bypass the HTTP cache. Pages serves assets with max-age=600, which
+  // can otherwise pair a fresh index.html with a stale module.
+  const fresh = new Request(e.request, { cache: 'no-store' });
   e.respondWith(
-    fetch(e.request)
+    fetch(fresh)
       .then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
