@@ -1,6 +1,7 @@
 // Everything that survives a reload lives here.
 
 const KEY = 'twentyone.academy.v1';
+const SCHEMA = 2;
 
 export const DEFAULT_SETTINGS = {
   aiPlayers: 0,
@@ -35,15 +36,17 @@ export function load() {
   } catch (err) {
     saved = {};
   }
-  return {
-    settings: { ...DEFAULT_SETTINGS, ...(saved.settings || {}) },
-    stats: { ...DEFAULT_STATS, ...(saved.stats || {}) },
-  };
+  const settings = { ...DEFAULT_SETTINGS, ...(saved.settings || {}) };
+  const stats = { ...DEFAULT_STATS, ...(saved.stats || {}) };
+  // Saves made before the table went heads-up carried bots along with
+  // them. Reset the seats once, leave the money and stats alone.
+  if ((saved.v || 1) < SCHEMA) settings.aiPlayers = 0;
+  return { settings, stats };
 }
 
 export function save(settings, stats) {
   try {
-    localStorage.setItem(KEY, JSON.stringify({ settings, stats }));
+    localStorage.setItem(KEY, JSON.stringify({ v: SCHEMA, settings, stats }));
   } catch (err) {
     /* private mode or full storage: play on without persistence */
   }

@@ -189,7 +189,10 @@ export class UI {
   renderAiSeats(game) {
     const seats = game.seats.slice(1);
     const root = this.n.aiRow;
-    root.hidden = seats.length === 0;
+    const dealt = seats.some((s) => s.hands.length > 0);
+    root.hidden = seats.length === 0 || !dealt;
+    const table = $('.table');
+    if (table) table.classList.toggle('with-bots', !root.hidden);
     if (root.childElementCount !== seats.length) {
       root.innerHTML = seats
         .map(
@@ -237,7 +240,7 @@ export class UI {
           <div class="hand"></div>
           <div class="hand-meta">
             <span class="total-badge"></span>
-            <span class="bet-spot"><span class="hand-bet"></span></span>
+            <span class="hand-bet"></span>
           </div>
           <div class="hand-result"></div>`;
         root.appendChild(node);
@@ -245,9 +248,8 @@ export class UI {
       syncHand($('.hand', node), hand.cards, -1);
       $('.total-badge', node).textContent = totalText(hand.cards, false);
       const betEl = $('.hand-bet', node);
-      betEl.className = `hand-bet chip-badge ${chipClass(hand.bet)}${hand.doubled ? ' doubled' : ''}`;
-      betEl.textContent = fmt(hand.bet);
-      betEl.title = hand.doubled ? 'Doubled' : '';
+      betEl.className = `hand-bet${hand.doubled ? ' doubled' : ''}`;
+      betEl.textContent = `${fmt(hand.bet)}${hand.doubled ? ' ×2' : ''}`;
       const shown = this.resultsVisible ? hand.result : null;
       const resultEl = $('.hand-result', node);
       resultEl.textContent = shown ? RESULT_TEXT[shown] : '';
@@ -321,10 +323,8 @@ export class UI {
     if (!this.revealed) {
       el.className = 'coach';
       el.innerHTML = `
-        <div class="advice-main">
-          <button id="revealBtn" class="reveal-btn">Hint<span>see what the chart says</span></button>
-          <span class="graded-note">Playing unaided, so this move gets graded</span>
-        </div>
+        <button id="revealBtn" class="reveal-btn">Hint</button>
+        <span class="graded-note">No hint yet, so this move gets graded</span>
         <button id="coachChartLink" class="chart-link">Chart</button>`;
       return;
     }
@@ -388,30 +388,6 @@ export class UI {
     return new Promise((r) => setTimeout(r, ms));
   }
 
-  // A chip slides between the dealer and the betting circle so the
-  // outcome reads as money moving, not just a label appearing.
-  flyChip(fromEl, toEl, cls) {
-    const table = $('.table');
-    if (!table || !fromEl || !toEl) return;
-    const t = table.getBoundingClientRect();
-    const a = fromEl.getBoundingClientRect();
-    const b = toEl.getBoundingClientRect();
-    if (!a.width || !b.width) return;
-    const el = document.createElement('div');
-    el.className = `fly-chip chip-badge ${cls}`;
-    el.style.left = `${a.left - t.left + a.width / 2}px`;
-    el.style.top = `${a.top - t.top + a.height / 2}px`;
-    table.appendChild(el);
-    const dx = b.left + b.width / 2 - (a.left + a.width / 2);
-    const dy = b.top + b.height / 2 - (a.top + a.height / 2);
-    const send = () => {
-      el.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-    };
-    requestAnimationFrame(send);
-    setTimeout(send, 60);
-    setTimeout(() => el.remove(), 1000);
-  }
-
   clearBanner() {
     this.outcomeToken = (this.outcomeToken || 0) + 1;
     this.resultsVisible = true;
@@ -425,20 +401,7 @@ export class UI {
     this.render(game);
     this.n.roundBanner.className = 'round-banner';
 
-    await this.sleep(480);
-    if (token !== this.outcomeToken) return;
-
-    const dealerEl = this.n.dealerHand;
-    const spots = [...document.querySelectorAll('.player-hand .bet-spot')];
-    game.playerHands.forEach((hand, i) => {
-      const spot = spots[i];
-      if (!spot) return;
-      const cls = chipClass(hand.bet);
-      if (hand.result === 'win' || hand.result === 'blackjack') this.flyChip(dealerEl, spot, cls);
-      else if (hand.result === 'lose' || hand.result === 'bust') this.flyChip(spot, dealerEl, cls);
-    });
-
-    await this.sleep(700);
+    await this.sleep(620);
     if (token !== this.outcomeToken) return;
 
     this.resultsVisible = true;
