@@ -180,6 +180,14 @@ export function adviseInsurance() {
   };
 }
 
+// True when the chart splits this pair against at least one upcard.
+// Tens and fives are never split, so there is no decision worth asking about.
+export function pairEverSplits(rank, das = true) {
+  const row = PAIRS[chartRank(rank)];
+  if (!row) return false;
+  return row.some((code) => code === 'Y' || (code === 'YN' && das));
+}
+
 // Row label shown in the chart view.
 export function rowLabel(table, key) {
   if (table === 'pair') return key === 'T' ? 'T,T' : `${key},${key}`;

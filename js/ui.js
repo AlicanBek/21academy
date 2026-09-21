@@ -1,12 +1,12 @@
 // All DOM work. Hands are synced card by card so freshly dealt cards
 // animate once instead of the whole table flashing on every update.
 
-import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=7';
+import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=8';
 import {
   DEALER_COLS, HARD, SOFT, PAIRS, PAIR_ROWS, SOFT_ROWS, HARD_ROWS,
   CODE_LABEL, rowLabel, advise,
-} from './strategy.js?v=7';
-import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=7';
+} from './strategy.js?v=8';
+import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=8';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
@@ -556,7 +556,7 @@ export class UI {
       ${row('Won / pushed / lost', `${fmt(s.handsWon)} / ${fmt(s.handsPushed)} / ${fmt(s.handsLost)}`)}
       ${row('Win rate', `${winRate}%`)}
       ${row('Net chips', signed(s.net), s.net >= 0 ? 'good' : 'bad')}
-      ${row('Best round', signed(s.biggestWin), 'good')}
+      ${row('Best round', signed(s.biggestWin), s.biggestWin > 0 ? 'good' : '')}
       ${row('Best streak', `${s.bestStreak} ${Math.abs(s.bestStreak) === 1 ? 'hand' : 'hands'}`)}
       ${row('Peak bankroll', fmt(s.peakBankroll))}
       ${row('Hints used', fmt(s.revealed))}
@@ -584,7 +584,7 @@ export class UI {
         <input type="range" id="setAi" min="0" max="5" step="1" value="${settings.aiPlayers}">
       </label>
       <label class="set-row toggle">
-        <span>Fast play<em>Shorter deal and bot animations</em></span>
+        <span>Fast play<em>Shorter deal and dealer animations</em></span>
         <input type="checkbox" id="setFast" ${settings.fastPlay ? 'checked' : ''}>
       </label>
       <label class="set-row toggle">

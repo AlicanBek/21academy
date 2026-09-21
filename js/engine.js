@@ -2,8 +2,8 @@
 // double any two, DAS, split to 4 hands, aces one card and no resplit,
 // insurance offered, no surrender.
 
-import { Shoe, handValue, isBlackjack, isPair } from './cards.js?v=7';
-import { advise } from './strategy.js?v=7';
+import { Shoe, handValue, isBlackjack, isPair } from './cards.js?v=8';
+import { advise, pairEverSplits } from './strategy.js?v=8';
 
 export const RULES = {
   decks: 6,
@@ -270,6 +270,13 @@ export class Game {
       if (seat.kind === 'ai') await this.wait(430);
 
       // A pair is offered the way insurance is: answer it, then play on.
+      // Pairs the chart never splits are skipped, so the prompt only ever
+      // appears when the answer genuinely depends on the dealer's card.
+      if (seat.kind === 'player' && this.handOptions(seatIndex, h).canSplit &&
+          !pairEverSplits(hand.cards[0].rank, RULES.das)) {
+        hand.splitDeclined = true;
+      }
+
       if (seat.kind === 'player' && this.handOptions(seatIndex, h).canSplit) {
         const opts = this.handOptions(seatIndex, h);
         const chart = advise({
