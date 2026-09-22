@@ -24,8 +24,13 @@
 html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
   height: 100%;
+  overflow: hidden;
   overscroll-behavior: none;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 body {
@@ -40,6 +45,9 @@ body {
 button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
 
 #app {
+  /* No panning on the table surface. Without this iOS can rubber-band
+     the shell, leaving touches offset from where buttons are painted. */
+  touch-action: none;
   position: fixed;
   top: 0;
   right: 0;
@@ -664,12 +672,14 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .act-btn:active:not(:disabled) { transform: scale(0.97); }
 .act-btn:disabled { opacity: 0.24; }
 
-.act-btn.hit { background: linear-gradient(180deg, #2fae6d, #1b8450); color: #04150d; box-shadow: 0 2px 0 #115936; }
-.act-btn.stand { background: linear-gradient(180deg, #e2564c, #b8322a); color: #fff5f3; box-shadow: 0 2px 0 #7d1d17; }
-.act-btn.double { background: linear-gradient(180deg, #4b8fd6, #2b63a8); color: #f2f8ff; box-shadow: 0 2px 0 #1c4373; }
-.act-btn.split { background: linear-gradient(180deg, #e0ac3c, #b8851c); color: #2b1d00; box-shadow: 0 2px 0 #7d5a10; }
-.act-btn.insure { background: rgba(255, 255, 255, 0.09); box-shadow: inset 0 0 0 1px var(--line); }
-.act-btn.decline { background: linear-gradient(180deg, #2fae6d, #1b8450); color: #04150d; box-shadow: 0 2px 0 #115936; }
+/* Same colours the chart uses, so the button and the cell you are
+   learning from read as the same thing. H white, S amber, D and Y green. */
+.act-btn.hit { background: linear-gradient(180deg, #f6f8f6, #dfe3df); color: #14181a; box-shadow: 0 2px 0 #a7aca7; }
+.act-btn.stand { background: linear-gradient(180deg, #f0c254, #e8b43a); color: #2c1f00; box-shadow: 0 2px 0 #a67d18; }
+.act-btn.double { background: linear-gradient(180deg, #2fbd7e, #1fae72); color: #04150d; box-shadow: 0 2px 0 #14764c; }
+.act-btn.split { background: linear-gradient(180deg, #2fbd7e, #1fae72); color: #04150d; box-shadow: 0 2px 0 #14764c; }
+.act-btn.decline { background: linear-gradient(180deg, #f6f8f6, #dfe3df); color: #14181a; box-shadow: 0 2px 0 #a7aca7; }
+.act-btn.insure { background: rgba(255, 255, 255, 0.09); color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
 
 .mini-btn {
   min-height: 54px;
@@ -710,7 +720,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 /* ---------- modals ---------- */
 
-.modal-wrap { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; }
+.modal-wrap { position: fixed; inset: 0; z-index: 60; display: flex; align-items: flex-end; justify-content: center; overscroll-behavior: contain; }
 .modal-scrim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.62); opacity: 0; transition: opacity 0.22s; }
 .modal-wrap.open .modal-scrim { opacity: 1; }
 
@@ -732,8 +742,29 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 .modal-grip { width: 38px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.24); margin: 9px auto 2px; }
 .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 10px; border-bottom: 1px solid var(--line); }
 .modal-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
-.modal-close { font-size: 16px; color: var(--dim); padding: 4px 8px; }
-.modal-body { padding: 14px 16px calc(20px + env(safe-area-inset-bottom)); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.modal-close {
+  font-size: 23px;
+  line-height: 1;
+  color: var(--text);
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  margin: -6px -8px -6px 0;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:active { background: rgba(255, 255, 255, 0.10); }
+.modal-body {
+  padding: 14px 16px calc(20px + env(safe-area-inset-bottom));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Keep drawer scrolling from chaining out to the page. */
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
 
 /* ---------- chart ---------- */
 

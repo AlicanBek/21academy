@@ -1,12 +1,12 @@
 // All DOM work. Hands are synced card by card so freshly dealt cards
 // animate once instead of the whole table flashing on every update.
 
-import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=8';
+import { handValue, isBlackjack, rankLabel, suitGlyph, isRed } from './cards.js?v=9';
 import {
   DEALER_COLS, HARD, SOFT, PAIRS, PAIR_ROWS, SOFT_ROWS, HARD_ROWS,
   CODE_LABEL, rowLabel, advise,
-} from './strategy.js?v=8';
-import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=8';
+} from './strategy.js?v=9';
+import { RULES, TABLE_MIN, TABLE_MAX } from './engine.js?v=9';
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const fmt = (n) => Math.round(n).toLocaleString('en-US');

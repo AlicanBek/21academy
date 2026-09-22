@@ -1,8 +1,8 @@
-import { Game, TABLE_MIN, TABLE_MAX } from './engine.js?v=8';
-import { UI } from './ui.js?v=8';
-import { load, save, resetAll } from './storage.js?v=8';
-import { advise, DEALER_COLS } from './strategy.js?v=8';
-import { RULES } from './engine.js?v=8';
+import { Game, TABLE_MIN, TABLE_MAX } from './engine.js?v=9';
+import { UI } from './ui.js?v=9';
+import { load, save, resetAll } from './storage.js?v=9';
+import { advise, DEALER_COLS } from './strategy.js?v=9';
+import { RULES } from './engine.js?v=9';
 
 const state = load();
 let bet = Math.max(TABLE_MIN, Math.min(state.settings.lastBet, state.stats.bankroll));
@@ -163,8 +163,17 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Keep the layout stable when iOS shows and hides its bars.
-const setVh = () => document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-setVh();
-window.addEventListener('resize', setVh);
-window.addEventListener('orientationchange', setVh);
+// iOS can leave the visual viewport nudged away from the layout viewport,
+// which paints the buttons in one place and puts their touch targets in
+// another. Pin it back whenever anything could have shifted it.
+const pinViewport = () => {
+  if (window.scrollX !== 0 || window.scrollY !== 0) window.scrollTo(0, 0);
+};
+pinViewport();
+for (const evt of ['resize', 'orientationchange', 'pageshow', 'focus', 'visibilitychange']) {
+  window.addEventListener(evt, pinViewport);
+}
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', pinViewport);
+  window.visualViewport.addEventListener('scroll', pinViewport);
+}
